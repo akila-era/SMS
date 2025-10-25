@@ -17,11 +17,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -76,15 +78,46 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .headers(headers -> headers
+                .frameOptions().deny()
+                .contentTypeOptions().and()
+                .httpStrictTransportSecurity(hstsConfig -> hstsConfig
+                    .maxAgeInSeconds(31536000)
+                )
+                .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+            )
             .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/test/**").permitAll()
+                auth
+                    // Public endpoints (no authentication required)
                     .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/test/**").permitAll()
+                    .requestMatchers("/api/auth/login").permitAll()
+                    
+                    // All other auth endpoints require authentication
+                    .requestMatchers("/api/auth/**").authenticated()
+                    
+                    // API Documentation (public for development)
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()
                     .requestMatchers("/webjars/**").permitAll()
-                    .anyRequest().authenticated()
+                    .requestMatchers("/actuator/health").permitAll()
+                    
+                    // Admin-only endpoints
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/branches/**").hasAnyRole("ADMIN", "BRANCH_MANAGER")
+                    .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "BRANCH_MANAGER")
+                    
+                    // Branch Manager and above
+                    .requestMatchers("/api/customers/**").hasAnyRole("ADMIN", "BRANCH_MANAGER", "RECEPTIONIST")
+                    .requestMatchers("/api/services/**").hasAnyRole("ADMIN", "BRANCH_MANAGER", "RECEPTIONIST")
+                    .requestMatchers("/api/appointments/**").hasAnyRole("ADMIN", "BRANCH_MANAGER", "RECEPTIONIST", "BEAUTICIAN")
+                    
+                    // All other API endpoints require authentication
+                    .requestMatchers("/api/**").authenticated()
+                    
+                    // Deny all other requests
+                    .anyRequest().denyAll()
             );
 
         http.authenticationProvider(authenticationProvider());

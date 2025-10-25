@@ -40,7 +40,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   logout: () => api.post('/auth/logout'),
-  verifyToken: () => api.get('/auth/verify'),
+  verifyToken: () => api.get('/auth/me'),
 };
 
 // Branch API

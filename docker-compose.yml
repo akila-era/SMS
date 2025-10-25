@@ -57,6 +57,24 @@ services:
     depends_on:
       - backend
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: salon_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "8081:80"
+    networks:
+      - salon_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   mysql_data:
 
