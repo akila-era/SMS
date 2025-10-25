@@ -67,6 +67,26 @@ public class Appointment {
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AppointmentService> appointmentServices = new ArrayList<>();
 
+    // Recurrence fields
+    @Column(name = "is_recurring")
+    private Boolean isRecurring = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recurrence_pattern")
+    private RecurrencePattern recurrencePattern;
+
+    @Column(name = "recurrence_interval")
+    private Integer recurrenceInterval = 1; // Every X days/weeks/months
+
+    @Column(name = "recurrence_end_date")
+    private LocalDate recurrenceEndDate;
+
+    @Column(name = "parent_appointment_id")
+    private Long parentAppointmentId; // For tracking recurring series
+
+    @Column(name = "recurrence_sequence")
+    private Integer recurrenceSequence = 0; // Position in the series
+
     // Constructors
     public Appointment() {}
 
@@ -184,8 +204,60 @@ public class Appointment {
         this.appointmentServices = appointmentServices;
     }
 
+    public Boolean getIsRecurring() {
+        return isRecurring;
+    }
+
+    public void setIsRecurring(Boolean isRecurring) {
+        this.isRecurring = isRecurring;
+    }
+
+    public RecurrencePattern getRecurrencePattern() {
+        return recurrencePattern;
+    }
+
+    public void setRecurrencePattern(RecurrencePattern recurrencePattern) {
+        this.recurrencePattern = recurrencePattern;
+    }
+
+    public Integer getRecurrenceInterval() {
+        return recurrenceInterval;
+    }
+
+    public void setRecurrenceInterval(Integer recurrenceInterval) {
+        this.recurrenceInterval = recurrenceInterval;
+    }
+
+    public LocalDate getRecurrenceEndDate() {
+        return recurrenceEndDate;
+    }
+
+    public void setRecurrenceEndDate(LocalDate recurrenceEndDate) {
+        this.recurrenceEndDate = recurrenceEndDate;
+    }
+
+    public Long getParentAppointmentId() {
+        return parentAppointmentId;
+    }
+
+    public void setParentAppointmentId(Long parentAppointmentId) {
+        this.parentAppointmentId = parentAppointmentId;
+    }
+
+    public Integer getRecurrenceSequence() {
+        return recurrenceSequence;
+    }
+
+    public void setRecurrenceSequence(Integer recurrenceSequence) {
+        this.recurrenceSequence = recurrenceSequence;
+    }
+
     public enum Status {
         BOOKED, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW
+    }
+
+    public enum RecurrencePattern {
+        NONE, DAILY, WEEKLY, MONTHLY, CUSTOM
     }
 }
 

@@ -166,6 +166,48 @@ public class AppointmentController {
         List<AvailabilityDTO> availability = appointmentService.getBranchAvailability(branchId, date);
         return ResponseEntity.ok(availability);
     }
+
+    // Recurrence Management
+    @PostMapping("/recurring")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<List<AppointmentDTO>> createRecurringAppointments(@Valid @RequestBody AppointmentDTO appointmentDTO) {
+        List<AppointmentDTO> createdAppointments = appointmentService.createRecurringAppointments(appointmentDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAppointments);
+    }
+
+    @GetMapping("/recurring/{parentAppointmentId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST') or hasRole('BEAUTICIAN')")
+    public ResponseEntity<List<AppointmentDTO>> getRecurringAppointments(@PathVariable Long parentAppointmentId) {
+        List<AppointmentDTO> appointments = appointmentService.getRecurringAppointments(parentAppointmentId);
+        return ResponseEntity.ok(appointments);
+    }
+
+    @PatchMapping("/recurring/{parentAppointmentId}/cancel")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<Void> cancelRecurringSeries(
+            @PathVariable Long parentAppointmentId, 
+            @RequestParam(required = false) String reason) {
+        appointmentService.cancelRecurringSeries(parentAppointmentId, reason);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Duration calculation endpoints
+    @PostMapping("/calculate-duration")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<Integer> calculateServiceDuration(@RequestBody List<Long> serviceIds) {
+        int duration = appointmentService.calculateServiceDuration(serviceIds);
+        return ResponseEntity.ok(duration);
+    }
+
+    @GetMapping("/suggested-slots/staff/{staffId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<List<TimeSlotDTO>> getSuggestedTimeSlots(
+            @PathVariable Long staffId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam int durationMinutes) {
+        List<TimeSlotDTO> suggestedSlots = appointmentService.getSuggestedTimeSlots(staffId, date, durationMinutes);
+        return ResponseEntity.ok(suggestedSlots);
+    }
 }
 
 

@@ -93,6 +93,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // Count appointments by staff and status
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.staff.id = :staffId AND a.status = :status")
     Long countByStaffIdAndStatus(@Param("staffId") Long staffId, @Param("status") Appointment.Status status);
+    
+    // Find recurring appointments by parent appointment ID
+    List<Appointment> findByParentAppointmentId(Long parentAppointmentId);
+    
+    // Find recurring appointments by parent appointment ID and status
+    List<Appointment> findByParentAppointmentIdAndStatus(Long parentAppointmentId, Appointment.Status status);
 }
 
 

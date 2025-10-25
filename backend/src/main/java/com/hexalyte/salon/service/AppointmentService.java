@@ -125,8 +125,10 @@ public class AppointmentService {
         appointment.setStatus(Appointment.Status.BOOKED);
         appointment.setNotes(appointmentDTO.getNotes());
 
-        // Calculate total amount and create appointment services
+        // Calculate total amount and duration, create appointment services
         BigDecimal totalAmount = BigDecimal.ZERO;
+        int totalDurationMinutes = 0;
+        
         for (AppointmentServiceDTO serviceDTO : appointmentDTO.getServices()) {
             com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceDTO.getServiceId())
                     .orElseThrow(() -> new RuntimeException("Service not found: " + serviceDTO.getServiceId()));
@@ -139,6 +141,16 @@ public class AppointmentService {
             
             appointment.getAppointmentServices().add(appointmentService);
             totalAmount = totalAmount.add(serviceDTO.getPrice());
+            totalDurationMinutes += service.getDurationMinutes();
+        }
+        
+        // Auto-calculate end time if not provided or if it doesn't match calculated duration
+        if (appointmentDTO.getEndTime() == null || 
+            !isDurationMatching(appointmentDTO.getStartTime(), appointmentDTO.getEndTime(), totalDurationMinutes)) {
+            LocalTime calculatedEndTime = appointmentDTO.getStartTime().plusMinutes(totalDurationMinutes);
+            appointment.setEndTime(calculatedEndTime);
+        } else {
+            appointment.setEndTime(appointmentDTO.getEndTime());
         }
         
         appointment.setTotalAmount(totalAmount);
@@ -177,9 +189,11 @@ public class AppointmentService {
         appointment.setEndTime(appointmentDTO.getEndTime());
         appointment.setNotes(appointmentDTO.getNotes());
 
-        // Update services
+        // Update services and recalculate duration
         appointment.getAppointmentServices().clear();
         BigDecimal totalAmount = BigDecimal.ZERO;
+        int totalDurationMinutes = 0;
+        
         for (AppointmentServiceDTO serviceDTO : appointmentDTO.getServices()) {
             com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceDTO.getServiceId())
                     .orElseThrow(() -> new RuntimeException("Service not found: " + serviceDTO.getServiceId()));
@@ -192,7 +206,18 @@ public class AppointmentService {
             
             appointment.getAppointmentServices().add(appointmentService);
             totalAmount = totalAmount.add(serviceDTO.getPrice());
+            totalDurationMinutes += service.getDurationMinutes();
         }
+        
+        // Auto-calculate end time if not provided or if it doesn't match calculated duration
+        if (appointmentDTO.getEndTime() == null || 
+            !isDurationMatching(appointmentDTO.getStartTime(), appointmentDTO.getEndTime(), totalDurationMinutes)) {
+            LocalTime calculatedEndTime = appointmentDTO.getStartTime().plusMinutes(totalDurationMinutes);
+            appointment.setEndTime(calculatedEndTime);
+        } else {
+            appointment.setEndTime(appointmentDTO.getEndTime());
+        }
+        
         appointment.setTotalAmount(totalAmount);
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -360,6 +385,11 @@ public class AppointmentService {
         return start1.isBefore(end2) && end1.isAfter(start2);
     }
 
+    private boolean isDurationMatching(LocalTime startTime, LocalTime endTime, int expectedDurationMinutes) {
+        LocalTime calculatedEndTime = startTime.plusMinutes(expectedDurationMinutes);
+        return calculatedEndTime.equals(endTime);
+    }
+
     private AppointmentDTO convertToDTO(Appointment appointment) {
         AppointmentDTO dto = new AppointmentDTO();
         dto.setId(appointment.getId());
@@ -376,6 +406,14 @@ public class AppointmentService {
         dto.setStatus(appointment.getStatus().name());
         dto.setNotes(appointment.getNotes());
         dto.setTotalAmount(appointment.getTotalAmount());
+
+        // Recurrence fields
+        dto.setIsRecurring(appointment.getIsRecurring());
+        dto.setRecurrencePattern(appointment.getRecurrencePattern() != null ? appointment.getRecurrencePattern().name() : null);
+        dto.setRecurrenceInterval(appointment.getRecurrenceInterval());
+        dto.setRecurrenceEndDate(appointment.getRecurrenceEndDate());
+        dto.setParentAppointmentId(appointment.getParentAppointmentId());
+        dto.setRecurrenceSequence(appointment.getRecurrenceSequence());
 
         if (appointment.getCreatedAt() != null) {
             dto.setCreatedAt(appointment.getCreatedAt().format(formatter));
@@ -403,6 +441,145 @@ public class AppointmentService {
         dto.setCommissionRate(appointmentService.getCommissionRate());
         dto.setDurationMinutes(appointmentService.getService().getDurationMinutes());
         return dto;
+    }
+
+    // Recurrence Management Methods
+    public List<AppointmentDTO> createRecurringAppointments(AppointmentDTO appointmentDTO) {
+        List<AppointmentDTO> createdAppointments = new ArrayList<>();
+        
+        if (!appointmentDTO.getIsRecurring() || appointmentDTO.getRecurrencePattern() == null) {
+            // Create single appointment
+            createdAppointments.add(createAppointment(appointmentDTO));
+            return createdAppointments;
+        }
+
+        // Create the first appointment
+        AppointmentDTO firstAppointment = createAppointment(appointmentDTO);
+        firstAppointment.setIsRecurring(true);
+        firstAppointment.setParentAppointmentId(firstAppointment.getId());
+        firstAppointment.setRecurrenceSequence(0);
+        createdAppointments.add(firstAppointment);
+
+        // Generate recurring appointments
+        LocalDate currentDate = appointmentDTO.getAppointmentDate();
+        LocalDate endDate = appointmentDTO.getRecurrenceEndDate();
+        int sequence = 1;
+
+        while (currentDate.isBefore(endDate)) {
+            currentDate = calculateNextRecurrenceDate(currentDate, appointmentDTO.getRecurrencePattern(), 
+                                                   appointmentDTO.getRecurrenceInterval());
+            
+            if (currentDate.isAfter(endDate)) break;
+
+            // Create recurring appointment
+            AppointmentDTO recurringAppointment = new AppointmentDTO();
+            recurringAppointment.setCustomerId(appointmentDTO.getCustomerId());
+            recurringAppointment.setStaffId(appointmentDTO.getStaffId());
+            recurringAppointment.setBranchId(appointmentDTO.getBranchId());
+            recurringAppointment.setAppointmentDate(currentDate);
+            recurringAppointment.setStartTime(appointmentDTO.getStartTime());
+            recurringAppointment.setEndTime(appointmentDTO.getEndTime());
+            recurringAppointment.setNotes(appointmentDTO.getNotes());
+            recurringAppointment.setServices(appointmentDTO.getServices());
+            recurringAppointment.setIsRecurring(true);
+            recurringAppointment.setRecurrencePattern(appointmentDTO.getRecurrencePattern());
+            recurringAppointment.setRecurrenceInterval(appointmentDTO.getRecurrenceInterval());
+            recurringAppointment.setRecurrenceEndDate(appointmentDTO.getRecurrenceEndDate());
+            recurringAppointment.setParentAppointmentId(firstAppointment.getId());
+            recurringAppointment.setRecurrenceSequence(sequence);
+
+            // Validate time slot for recurring appointment
+            try {
+                validateTimeSlot(recurringAppointment.getStaffId(), recurringAppointment.getAppointmentDate(),
+                               recurringAppointment.getStartTime(), recurringAppointment.getEndTime());
+                
+                AppointmentDTO created = createAppointment(recurringAppointment);
+                createdAppointments.add(created);
+                sequence++;
+            } catch (RuntimeException e) {
+                // Skip conflicting appointments but continue with the series
+                System.err.println("Skipping conflicting appointment on " + currentDate + ": " + e.getMessage());
+            }
+        }
+
+        return createdAppointments;
+    }
+
+    private LocalDate calculateNextRecurrenceDate(LocalDate currentDate, String pattern, Integer interval) {
+        switch (pattern.toUpperCase()) {
+            case "DAILY":
+                return currentDate.plusDays(interval);
+            case "WEEKLY":
+                return currentDate.plusWeeks(interval);
+            case "MONTHLY":
+                return currentDate.plusMonths(interval);
+            default:
+                return currentDate.plusDays(1);
+        }
+    }
+
+    public List<AppointmentDTO> getRecurringAppointments(Long parentAppointmentId) {
+        return appointmentRepository.findByParentAppointmentId(parentAppointmentId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void cancelRecurringSeries(Long parentAppointmentId, String reason) {
+        List<Appointment> recurringAppointments = appointmentRepository.findByParentAppointmentId(parentAppointmentId);
+        
+        for (Appointment appointment : recurringAppointments) {
+            if (appointment.getStatus() == Appointment.Status.BOOKED) {
+                appointment.setStatus(Appointment.Status.CANCELLED);
+                if (reason != null && !reason.isEmpty()) {
+                    appointment.setNotes((appointment.getNotes() != null ? appointment.getNotes() + "\n" : "") + 
+                                       "Series cancellation reason: " + reason);
+                }
+                appointmentRepository.save(appointment);
+            }
+        }
+    }
+
+    // Calculate total duration for a list of services
+    public int calculateServiceDuration(List<Long> serviceIds) {
+        int totalDuration = 0;
+        for (Long serviceId : serviceIds) {
+            com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceId)
+                    .orElseThrow(() -> new RuntimeException("Service not found: " + serviceId));
+            totalDuration += service.getDurationMinutes();
+        }
+        return totalDuration;
+    }
+
+    // Get suggested time slots based on service duration
+    public List<TimeSlotDTO> getSuggestedTimeSlots(Long staffId, LocalDate date, int durationMinutes) {
+        List<Appointment> existingAppointments = appointmentRepository.findStaffAppointmentsForDate(staffId, date);
+        List<TimeSlotDTO> suggestedSlots = new ArrayList<>();
+        
+        LocalTime startTime = LocalTime.of(9, 0); // Salon opens at 9 AM
+        LocalTime endTime = LocalTime.of(18, 0);  // Salon closes at 6 PM
+        LocalTime currentTime = startTime;
+
+        while (currentTime.isBefore(endTime)) {
+            LocalTime slotEnd = currentTime.plusMinutes(durationMinutes);
+            if (slotEnd.isAfter(endTime)) break;
+
+            boolean isAvailable = true;
+            for (Appointment appointment : existingAppointments) {
+                if (isTimeSlotConflicting(currentTime, slotEnd, appointment.getStartTime(), appointment.getEndTime())) {
+                    isAvailable = false;
+                    break;
+                }
+            }
+
+            if (isAvailable) {
+                TimeSlotDTO slot = new TimeSlotDTO(currentTime, slotEnd, true);
+                suggestedSlots.add(slot);
+            }
+            
+            currentTime = currentTime.plusMinutes(30); // Check every 30 minutes
+        }
+
+        return suggestedSlots;
     }
 }
 

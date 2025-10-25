@@ -44,39 +44,39 @@ code {
 
 /* Custom components */
 .btn-primary {
-  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  @apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
 }
 
 .btn-secondary {
-  @apply bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  @apply bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
 }
 
 .btn-success {
-  @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  @apply bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
 }
 
 .btn-danger {
-  @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  @apply bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
 }
 
 .btn-outline {
-  @apply border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  @apply border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:border-gray-400;
 }
 
 .input-field {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
 }
 
 .card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200;
 }
 
 .sidebar-item {
-  @apply flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 cursor-pointer;
+  @apply flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 cursor-pointer rounded-lg mx-2;
 }
 
 .sidebar-item.active {
-  @apply bg-blue-50 text-blue-700 border-r-2 border-blue-700;
+  @apply bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-r-2 border-blue-700 font-medium;
 }
 
 .table-header {
@@ -92,23 +92,160 @@ code {
 }
 
 .status-booked {
-  @apply bg-blue-100 text-blue-800;
+  @apply bg-blue-100 text-blue-800 border border-blue-200;
 }
 
 .status-in-progress {
-  @apply bg-yellow-100 text-yellow-800;
+  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
 }
 
 .status-completed {
-  @apply bg-green-100 text-green-800;
+  @apply bg-green-100 text-green-800 border border-green-200;
 }
 
 .status-cancelled {
-  @apply bg-red-100 text-red-800;
+  @apply bg-red-100 text-red-800 border border-red-200;
 }
 
 .status-no-show {
-  @apply bg-gray-100 text-gray-800;
+  @apply bg-gray-100 text-gray-800 border border-gray-200;
+}
+
+/* Modern enhancements */
+.glass-effect {
+  @apply bg-white/80 backdrop-blur-sm border border-white/20;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar for modals */
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Loading states */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+.skeleton-text {
+  @apply h-4 bg-gray-200 rounded animate-pulse;
+}
+
+/* Interactive elements */
+.interactive-card {
+  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer;
+}
+
+.interactive-button {
+  @apply transition-all duration-200 hover:scale-105 active:scale-95;
+}
+
+/* Status indicators */
+.status-indicator {
+  @apply w-3 h-3 rounded-full;
+}
+
+.status-indicator.online {
+  @apply bg-green-500;
+}
+
+.status-indicator.busy {
+  @apply bg-yellow-500;
+}
+
+.status-indicator.offline {
+  @apply bg-gray-400;
+}
+
+/* Modern form elements */
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}
+
+.form-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white;
+}
+
+.form-textarea {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none;
+}
+
+/* Notification styles */
+.notification {
+  @apply fixed top-4 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg border border-gray-200 p-4;
+}
+
+.notification-success {
+  @apply border-l-4 border-l-green-500;
+}
+
+.notification-error {
+  @apply border-l-4 border-l-red-500;
+}
+
+.notification-warning {
+  @apply border-l-4 border-l-yellow-500;
+}
+
+.notification-info {
+  @apply border-l-4 border-l-blue-500;
 }
 
 

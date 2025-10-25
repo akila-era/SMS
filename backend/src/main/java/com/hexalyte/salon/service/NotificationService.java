@@ -102,6 +102,67 @@ public class NotificationService {
             emailService.sendEmail(appointment.getCustomer().getEmail(), "Appointment Reminder", message);
         }
     }
+
+    public void sendWaitlistAvailabilityNotification(com.hexalyte.salon.model.Waitlist waitlist, 
+                                                    java.time.LocalDate date, 
+                                                    java.time.LocalTime startTime, 
+                                                    java.time.LocalTime endTime) {
+        String message = String.format(
+            "Good news! A time slot has become available at %s on %s from %s to %s. " +
+            "Please call us to confirm your appointment.",
+            waitlist.getBranch().getName(),
+            date,
+            startTime,
+            endTime
+        );
+
+        smsService.sendSms(waitlist.getCustomer().getPhone(), message);
+        
+        if (waitlist.getCustomer().getEmail() != null && !waitlist.getCustomer().getEmail().isEmpty()) {
+            emailService.sendEmail(waitlist.getCustomer().getEmail(), "Appointment Available", message);
+        }
+    }
+
+    public void sendWaitlistConversionNotification(com.hexalyte.salon.model.Waitlist waitlist, 
+                                                 com.hexalyte.salon.dto.AppointmentDTO appointment) {
+        String message = String.format(
+            "Your waitlist request has been converted to an appointment at %s on %s from %s to %s. " +
+            "We look forward to seeing you!",
+            appointment.getBranchName(),
+            appointment.getAppointmentDate(),
+            appointment.getStartTime(),
+            appointment.getEndTime()
+        );
+
+        smsService.sendSms(waitlist.getCustomer().getPhone(), message);
+        
+        if (waitlist.getCustomer().getEmail() != null && !waitlist.getCustomer().getEmail().isEmpty()) {
+            emailService.sendEmail(waitlist.getCustomer().getEmail(), "Appointment Confirmed", message);
+        }
+    }
+
+    public void sendSms(String phoneNumber, String message) {
+        smsService.sendSms(phoneNumber, message);
+    }
+
+    public void sendEmail(String email, String subject, String message) {
+        emailService.sendEmail(email, subject, message);
+    }
+
+    public void sendFeedbackThankYouNotification(Appointment appointment, com.hexalyte.salon.model.AppointmentFeedback feedback) {
+        String message = String.format(
+            "Thank you for your feedback! We appreciate your %d-star rating for your appointment on %s. " +
+            "Your feedback helps us improve our services.",
+            feedback.getOverallRating(),
+            appointment.getAppointmentDate()
+        );
+
+        smsService.sendSms(appointment.getCustomer().getPhone(), message);
+        
+        if (appointment.getCustomer().getEmail() != null && !appointment.getCustomer().getEmail().isEmpty()) {
+            emailService.sendEmail(appointment.getCustomer().getEmail(), "Thank You for Your Feedback", message);
+        }
+    }
 }
 
 
