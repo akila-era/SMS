@@ -42,7 +42,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            logger.error("Could not set user authentication in security context: " + ex.getMessage());
+            // Don't log the full stack trace for JWT signature exceptions as they're common
+            if (!ex.getMessage().contains("JWT signature")) {
+                logger.debug("Full stack trace:", ex);
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -56,3 +60,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 }
+
+

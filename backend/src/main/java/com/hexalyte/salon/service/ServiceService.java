@@ -4,14 +4,13 @@ import com.hexalyte.salon.dto.ServiceDTO;
 import com.hexalyte.salon.model.Service;
 import com.hexalyte.salon.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@org.springframework.stereotype.Service
 @Transactional
 public class ServiceService {
 
@@ -129,3 +128,5 @@ public class ServiceService {
         return dto;
     }
 }
+
+

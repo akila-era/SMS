@@ -140,3 +140,5 @@ public class User {
         ADMIN, BRANCH_MANAGER, RECEPTIONIST, BEAUTICIAN, ACCOUNTANT
     }
 }
+
+

@@ -59,3 +59,5 @@ public class JwtAuthenticationResponse {
         this.branchId = branchId;
     }
 }
+
+

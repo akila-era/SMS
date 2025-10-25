@@ -136,3 +136,4 @@ public class BranchDTO {
         this.appointmentCount = appointmentCount;
     }
 }
+

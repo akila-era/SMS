@@ -31,3 +31,5 @@ Write-Host "Password: password" -ForegroundColor White
 Write-Host ""
 Write-Host "To stop the services, run: docker-compose down" -ForegroundColor Cyan
 Write-Host "To view logs, run: docker-compose logs -f" -ForegroundColor Cyan
+
+

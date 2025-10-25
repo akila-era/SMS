@@ -1,7 +1,6 @@
 package com.hexalyte.salon.dto;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public class AvailabilityDTO {
@@ -82,3 +81,5 @@ public class AvailabilityDTO {
         this.bookedSlots = bookedSlots;
     }
 }
+
+

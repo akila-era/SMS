@@ -1,9 +1,9 @@
-FROM openjdk:17-jdk-slim
-
-WORKDIR /app
+FROM eclipse-temurin:17-jdk
 
 # Install Maven
 RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
 
 # Copy Maven files
 COPY pom.xml .

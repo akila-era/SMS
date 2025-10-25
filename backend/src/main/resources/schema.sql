@@ -273,3 +273,5 @@ INSERT INTO products (name, description, category, cost_price, selling_price, su
 ('Conditioner', 'Hair conditioner', 'Hair Care', 400.00, 700.00, 'Beauty Supplies Ltd'),
 ('Face Cream', 'Moisturizing face cream', 'Skin Care', 800.00, 1200.00, 'Skin Care Co'),
 ('Nail Polish', 'Professional nail polish', 'Nail Care', 200.00, 400.00, 'Nail Art Supplies');
+
+

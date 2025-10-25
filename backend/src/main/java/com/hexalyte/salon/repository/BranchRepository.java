@@ -11,3 +11,5 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     List<Branch> findByIsActiveTrue();
     List<Branch> findByIsActive(Boolean isActive);
 }
+
+

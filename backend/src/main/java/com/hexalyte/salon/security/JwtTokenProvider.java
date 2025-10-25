@@ -52,14 +52,20 @@ public class JwtTokenProvider {
                     .parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException ex) {
-            System.err.println("Invalid JWT token");
+            System.err.println("Invalid JWT token: " + ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            System.err.println("Expired JWT token");
+            System.err.println("Expired JWT token: " + ex.getMessage());
         } catch (UnsupportedJwtException ex) {
-            System.err.println("Unsupported JWT token");
+            System.err.println("Unsupported JWT token: " + ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            System.err.println("JWT claims string is empty");
+            System.err.println("JWT claims string is empty: " + ex.getMessage());
+        } catch (io.jsonwebtoken.security.SignatureException ex) {
+            System.err.println("JWT signature does not match: " + ex.getMessage());
+        } catch (Exception ex) {
+            System.err.println("JWT validation error: " + ex.getMessage());
         }
         return false;
     }
 }
+
+

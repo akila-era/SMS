@@ -14,8 +14,9 @@ COPY . .
 # Expose port
 EXPOSE 3000
 
-# Set environment variable
+# Set environment variables
 ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
 
 # Start development server
 CMD ["npm", "start"]

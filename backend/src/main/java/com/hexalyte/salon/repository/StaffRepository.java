@@ -20,3 +20,5 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     @Query("SELECT COUNT(s) FROM Staff s WHERE s.branch.id = :branchId")
     Long countByBranchId(@Param("branchId") Long branchId);
 }
+
+

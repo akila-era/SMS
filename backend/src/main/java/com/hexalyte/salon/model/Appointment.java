@@ -188,3 +188,5 @@ public class Appointment {
         BOOKED, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW
     }
 }
+
+

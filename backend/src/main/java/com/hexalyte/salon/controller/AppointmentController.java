@@ -167,3 +167,5 @@ public class AppointmentController {
         return ResponseEntity.ok(availability);
     }
 }
+
+

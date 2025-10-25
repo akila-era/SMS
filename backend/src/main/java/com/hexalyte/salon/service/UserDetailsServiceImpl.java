@@ -41,3 +41,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 }
+
+

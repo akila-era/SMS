@@ -181,4 +181,12 @@ public class Staff {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+
+    public List<Appointment> getAppointments() {
+        // This would typically be a @OneToMany relationship, but for now return empty list
+        // In a real implementation, you would add:
+        // @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        // private List<Appointment> appointments = new ArrayList<>();
+        return new ArrayList<>();
+    }
 }

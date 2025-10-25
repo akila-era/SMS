@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@org.springframework.stereotype.Service
 @Transactional
 public class AppointmentService {
 
@@ -128,10 +128,10 @@ public class AppointmentService {
         // Calculate total amount and create appointment services
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (AppointmentServiceDTO serviceDTO : appointmentDTO.getServices()) {
-            Service service = serviceRepository.findById(serviceDTO.getServiceId())
+            com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceDTO.getServiceId())
                     .orElseThrow(() -> new RuntimeException("Service not found: " + serviceDTO.getServiceId()));
             
-            AppointmentService appointmentService = new AppointmentService();
+            com.hexalyte.salon.model.AppointmentService appointmentService = new com.hexalyte.salon.model.AppointmentService();
             appointmentService.setAppointment(appointment);
             appointmentService.setService(service);
             appointmentService.setPrice(serviceDTO.getPrice());
@@ -181,10 +181,10 @@ public class AppointmentService {
         appointment.getAppointmentServices().clear();
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (AppointmentServiceDTO serviceDTO : appointmentDTO.getServices()) {
-            Service service = serviceRepository.findById(serviceDTO.getServiceId())
+            com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceDTO.getServiceId())
                     .orElseThrow(() -> new RuntimeException("Service not found: " + serviceDTO.getServiceId()));
             
-            AppointmentService appointmentService = new AppointmentService();
+            com.hexalyte.salon.model.AppointmentService appointmentService = new com.hexalyte.salon.model.AppointmentService();
             appointmentService.setAppointment(appointment);
             appointmentService.setService(service);
             appointmentService.setPrice(serviceDTO.getPrice());
@@ -393,7 +393,7 @@ public class AppointmentService {
         return dto;
     }
 
-    private AppointmentServiceDTO convertAppointmentServiceToDTO(AppointmentService appointmentService) {
+    private AppointmentServiceDTO convertAppointmentServiceToDTO(com.hexalyte.salon.model.AppointmentService appointmentService) {
         AppointmentServiceDTO dto = new AppointmentServiceDTO();
         dto.setId(appointmentService.getId());
         dto.setServiceId(appointmentService.getService().getId());
@@ -405,3 +405,5 @@ public class AppointmentService {
         return dto;
     }
 }
+
+

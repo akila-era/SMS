@@ -20,3 +20,5 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
     @Query("SELECT s FROM Service s WHERE s.name LIKE %:name% AND s.isActive = true")
     List<Service> findByNameContaining(@Param("name") String name);
 }
+
+
