@@ -38,7 +38,16 @@ public class AppointmentService {
     private CommissionService commissionService;
 
     @Autowired
+    private CommissionRepository commissionRepository;
+
+    @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private BillingService billingService;
+
+    @Autowired
+    private InventoryUsageService inventoryUsageService;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -232,9 +241,23 @@ public class AppointmentService {
         Appointment.Status newStatus = Appointment.Status.valueOf(status.toUpperCase());
         appointment.setStatus(newStatus);
 
-        // If completed, calculate commissions
+        // If completed, calculate commissions, generate bill, and track inventory usage
         if (newStatus == Appointment.Status.COMPLETED) {
-            commissionService.calculateCommissions(appointment);
+            commissionService.calculateCommissionForAppointment(id);
+            // Generate bill automatically when appointment is completed
+            try {
+                billingService.generateBillFromAppointment(id);
+            } catch (Exception e) {
+                // Log error but don't fail the appointment completion
+                System.err.println("Failed to generate bill for appointment " + id + ": " + e.getMessage());
+            }
+            // Track inventory usage for completed appointment
+            try {
+                inventoryUsageService.trackInventoryUsageForAppointment(id);
+            } catch (Exception e) {
+                // Log error but don't fail the appointment completion
+                System.err.println("Failed to track inventory usage for appointment " + id + ": " + e.getMessage());
+            }
         }
 
         // Send status update notification
@@ -253,6 +276,15 @@ public class AppointmentService {
         if (reason != null && !reason.isEmpty()) {
             appointment.setNotes((appointment.getNotes() != null ? appointment.getNotes() + "\n" : "") + 
                                "Cancellation reason: " + reason);
+        }
+
+        // If appointment was completed, reverse any commissions
+        if (appointment.getStatus() == Appointment.Status.COMPLETED) {
+            // Find and reverse commissions for this appointment
+            List<Commission> commissions = commissionRepository.findByAppointmentId(id);
+            for (Commission commission : commissions) {
+                commissionService.reverseCommission(commission.getId());
+            }
         }
 
         // Send cancellation notification
@@ -315,7 +347,7 @@ public class AppointmentService {
     }
 
     public List<AvailabilityDTO> getBranchAvailability(Long branchId, LocalDate date) {
-        List<Staff> staffList = staffRepository.findByBranchIdAndIsActiveTrue(branchId);
+        List<Staff> staffList = staffRepository.findByBranchIdAndStatus(branchId, Staff.StaffStatus.ACTIVE);
         return staffList.stream()
                 .map(staff -> getStaffAvailability(staff.getId(), date))
                 .collect(Collectors.toList());

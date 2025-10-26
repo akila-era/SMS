@@ -1,6 +1,6 @@
 package com.hexalyte.salon.controller;
 
-import com.hexalyte.salon.dto.CustomerDTO;
+import com.hexalyte.salon.dto.*;
 import com.hexalyte.salon.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -87,6 +88,79 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> updateLoyaltyPoints(@PathVariable Long id, @RequestParam Integer points) {
         CustomerDTO updatedCustomer = customerService.updateLoyaltyPoints(id, points);
         return ResponseEntity.ok(updatedCustomer);
+    }
+
+    // Customer History Endpoints
+    @GetMapping("/{id}/history")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<List<CustomerHistoryDTO>> getCustomerHistory(@PathVariable Long id) {
+        List<CustomerHistoryDTO> history = customerService.getCustomerHistory(id);
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/{id}/history/range")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<List<CustomerHistoryDTO>> getCustomerHistoryByDateRange(
+            @PathVariable Long id,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        List<CustomerHistoryDTO> history = customerService.getCustomerHistoryByDateRange(id, startDate, endDate);
+        return ResponseEntity.ok(history);
+    }
+
+    // Customer Preferences Endpoints
+    @GetMapping("/{id}/preferences")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<CustomerPreferencesDTO> getCustomerPreferences(@PathVariable Long id) {
+        CustomerPreferencesDTO preferences = customerService.getCustomerPreferences(id);
+        return ResponseEntity.ok(preferences);
+    }
+
+    @PutMapping("/{id}/preferences")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<CustomerPreferencesDTO> updateCustomerPreferences(
+            @PathVariable Long id, 
+            @Valid @RequestBody CustomerPreferencesDTO preferencesDTO) {
+        CustomerPreferencesDTO updatedPreferences = customerService.updateCustomerPreferences(id, preferencesDTO);
+        return ResponseEntity.ok(updatedPreferences);
+    }
+
+    // Loyalty Benefits Endpoints
+    @GetMapping("/loyalty-benefits")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER')")
+    public ResponseEntity<List<LoyaltyBenefitDTO>> getAllLoyaltyBenefits() {
+        List<LoyaltyBenefitDTO> benefits = customerService.getAllLoyaltyBenefits();
+        return ResponseEntity.ok(benefits);
+    }
+
+    @GetMapping("/loyalty-benefits/{level}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER') or hasRole('RECEPTIONIST')")
+    public ResponseEntity<List<LoyaltyBenefitDTO>> getLoyaltyBenefitsByLevel(@PathVariable String level) {
+        List<LoyaltyBenefitDTO> benefits = customerService.getLoyaltyBenefits(level);
+        return ResponseEntity.ok(benefits);
+    }
+
+    @PostMapping("/loyalty-benefits")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER')")
+    public ResponseEntity<LoyaltyBenefitDTO> createLoyaltyBenefit(@Valid @RequestBody LoyaltyBenefitDTO benefitDTO) {
+        LoyaltyBenefitDTO createdBenefit = customerService.createLoyaltyBenefit(benefitDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBenefit);
+    }
+
+    @PutMapping("/loyalty-benefits/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER')")
+    public ResponseEntity<LoyaltyBenefitDTO> updateLoyaltyBenefit(
+            @PathVariable Long id, 
+            @Valid @RequestBody LoyaltyBenefitDTO benefitDTO) {
+        LoyaltyBenefitDTO updatedBenefit = customerService.updateLoyaltyBenefit(id, benefitDTO);
+        return ResponseEntity.ok(updatedBenefit);
+    }
+
+    @DeleteMapping("/loyalty-benefits/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('BRANCH_MANAGER')")
+    public ResponseEntity<Void> deleteLoyaltyBenefit(@PathVariable Long id) {
+        customerService.deleteLoyaltyBenefit(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

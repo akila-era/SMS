@@ -163,6 +163,20 @@ public class NotificationService {
             emailService.sendEmail(appointment.getCustomer().getEmail(), "Thank You for Your Feedback", message);
         }
     }
+    
+    public void sendLowStockAlert(com.hexalyte.salon.model.LowStockAlert alert, String message) {
+        try {
+            // Send notification to branch managers and admins
+            // This would typically involve sending emails or SMS to relevant staff
+            System.out.println("Low Stock Alert: " + message);
+            
+            // You can implement actual notification logic here
+            // For example, send email to branch manager or admin
+            // emailService.sendEmail(managerEmail, "Low Stock Alert", message);
+        } catch (Exception e) {
+            System.err.println("Error sending low stock alert notification: " + e.getMessage());
+        }
+    }
 }
 
 

@@ -15,13 +15,19 @@ import java.util.List;
 public interface WaitlistRepository extends JpaRepository<Waitlist, Long> {
     
     // Find active waitlist entries by staff
-    List<Waitlist> findByStaffIdAndStatusOrderByPriorityDescCreatedAtAsc(Long staffId, Waitlist.Status status);
+    @Query("SELECT w FROM Waitlist w WHERE w.staff.id = :staffId AND w.status = :status ORDER BY w.priority DESC, w.createdAt ASC")
+    List<Waitlist> findByStaffIdAndStatusOrderByPriorityDescCreatedAtAsc(@Param("staffId") Long staffId, @Param("status") Waitlist.Status status);
     
     // Find active waitlist entries by branch
-    List<Waitlist> findByBranchIdAndStatusOrderByPriorityDescCreatedAtAsc(Long branchId, Waitlist.Status status);
+    @Query("SELECT w FROM Waitlist w WHERE w.branch.id = :branchId AND w.status = :status ORDER BY w.priority DESC, w.createdAt ASC")
+    List<Waitlist> findByBranchIdAndStatusOrderByPriorityDescCreatedAtAsc(@Param("branchId") Long branchId, @Param("status") Waitlist.Status status);
     
     // Find active waitlist entries by customer
-    List<Waitlist> findByCustomerIdAndStatusOrderByCreatedAtDesc(Long customerId, Waitlist.Status status);
+    @Query("SELECT w FROM Waitlist w WHERE w.customer.id = :customerId AND w.status = :status ORDER BY w.createdAt DESC")
+    List<Waitlist> findByCustomerIdAndStatusOrderByCreatedAtDesc(@Param("customerId") Long customerId, @Param("status") Waitlist.Status status);
+    
+    // Find waitlist entries by customer and status
+    List<Waitlist> findByCustomerIdAndStatus(Long customerId, Waitlist.Status status);
     
     // Find waitlist entries by status
     List<Waitlist> findByStatusOrderByPriorityDescCreatedAtAsc(Waitlist.Status status);

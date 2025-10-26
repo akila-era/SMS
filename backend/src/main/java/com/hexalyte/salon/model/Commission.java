@@ -8,7 +8,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +17,12 @@ public class Commission {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "commission_id")
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "staff_id", nullable = false)
@@ -32,24 +36,40 @@ public class Commission {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "branch_id", nullable = false)
-    private Branch branch;
-
-    @DecimalMin(value = "0.0", inclusive = false)
-    private BigDecimal amount;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "commission_type", nullable = false)
+    private CommissionType commissionType = CommissionType.PERCENT;
 
     @DecimalMin(value = "0.0", inclusive = true)
-    @Column(name = "commission_rate")
-    private BigDecimal commissionRate;
+    @Column(name = "rate", precision = 5, scale = 2)
+    private BigDecimal rate;
 
-    @NotNull
-    @Column(name = "commission_date")
-    private LocalDate commissionDate;
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "amount", precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(name = "calculated_on")
+    private LocalDateTime calculatedOn;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_by")
+    private User approvedBy;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
+    @Column(name = "is_manual", nullable = false)
+    private Boolean isManual = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.PENDING;
+    @Column(name = "status", nullable = false)
+    private CommissionStatus status = CommissionStatus.PENDING;
+
+    @Column(name = "calculation_rule", columnDefinition = "TEXT")
+    private String calculationRule; // Stores which rule was used (service/branch/staff level)
+
+    @Column(name = "service_price", precision = 10, scale = 2)
+    private BigDecimal servicePrice; // Store the service price at time of calculation
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -59,18 +79,28 @@ public class Commission {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // Enums
+    public enum CommissionType {
+        PERCENT, FIXED, TIERED, SHARED
+    }
+
+    public enum CommissionStatus {
+        PENDING, APPROVED, LOCKED, REVERSED
+    }
+
     // Constructors
     public Commission() {}
 
-    public Commission(Staff staff, Appointment appointment, Service service, Branch branch, 
-                     BigDecimal amount, BigDecimal commissionRate, LocalDate commissionDate) {
+    public Commission(Branch branch, Staff staff, Appointment appointment, Service service, 
+                     CommissionType commissionType, BigDecimal rate, BigDecimal amount) {
+        this.branch = branch;
         this.staff = staff;
         this.appointment = appointment;
         this.service = service;
-        this.branch = branch;
+        this.commissionType = commissionType;
+        this.rate = rate;
         this.amount = amount;
-        this.commissionRate = commissionRate;
-        this.commissionDate = commissionDate;
+        this.calculatedOn = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -80,6 +110,14 @@ public class Commission {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
     }
 
     public Staff getStaff() {
@@ -106,12 +144,20 @@ public class Commission {
         this.service = service;
     }
 
-    public Branch getBranch() {
-        return branch;
+    public CommissionType getCommissionType() {
+        return commissionType;
     }
 
-    public void setBranch(Branch branch) {
-        this.branch = branch;
+    public void setCommissionType(CommissionType commissionType) {
+        this.commissionType = commissionType;
+    }
+
+    public BigDecimal getRate() {
+        return rate;
+    }
+
+    public void setRate(BigDecimal rate) {
+        this.rate = rate;
     }
 
     public BigDecimal getAmount() {
@@ -122,28 +168,60 @@ public class Commission {
         this.amount = amount;
     }
 
-    public BigDecimal getCommissionRate() {
-        return commissionRate;
+    public LocalDateTime getCalculatedOn() {
+        return calculatedOn;
     }
 
-    public void setCommissionRate(BigDecimal commissionRate) {
-        this.commissionRate = commissionRate;
+    public void setCalculatedOn(LocalDateTime calculatedOn) {
+        this.calculatedOn = calculatedOn;
     }
 
-    public LocalDate getCommissionDate() {
-        return commissionDate;
+    public User getApprovedBy() {
+        return approvedBy;
     }
 
-    public void setCommissionDate(LocalDate commissionDate) {
-        this.commissionDate = commissionDate;
+    public void setApprovedBy(User approvedBy) {
+        this.approvedBy = approvedBy;
     }
 
-    public Status getStatus() {
+    public LocalDateTime getApprovedAt() {
+        return approvedAt;
+    }
+
+    public void setApprovedAt(LocalDateTime approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+
+    public Boolean getIsManual() {
+        return isManual;
+    }
+
+    public void setIsManual(Boolean isManual) {
+        this.isManual = isManual;
+    }
+
+    public CommissionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(CommissionStatus status) {
         this.status = status;
+    }
+
+    public String getCalculationRule() {
+        return calculationRule;
+    }
+
+    public void setCalculationRule(String calculationRule) {
+        this.calculationRule = calculationRule;
+    }
+
+    public BigDecimal getServicePrice() {
+        return servicePrice;
+    }
+
+    public void setServicePrice(BigDecimal servicePrice) {
+        this.servicePrice = servicePrice;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -162,9 +240,47 @@ public class Commission {
         this.updatedAt = updatedAt;
     }
 
-    public enum Status {
-        PENDING, APPROVED, PAID
+    // Helper methods
+    public boolean isApproved() {
+        return status == CommissionStatus.APPROVED;
+    }
+
+    public boolean isLocked() {
+        return status == CommissionStatus.LOCKED;
+    }
+
+    public boolean isReversed() {
+        return status == CommissionStatus.REVERSED;
+    }
+
+    public boolean isPending() {
+        return status == CommissionStatus.PENDING;
+    }
+
+    public void approve(User approver) {
+        this.status = CommissionStatus.APPROVED;
+        this.approvedBy = approver;
+        this.approvedAt = LocalDateTime.now();
+    }
+
+    public void lock() {
+        this.status = CommissionStatus.LOCKED;
+    }
+
+    public void reverse() {
+        this.status = CommissionStatus.REVERSED;
+    }
+
+    // Convenience methods for compatibility
+    public BigDecimal getCommissionRate() {
+        return rate;
+    }
+
+    public void setCommissionRate(BigDecimal commissionRate) {
+        this.rate = commissionRate;
+    }
+
+    public void setCommissionDate(LocalDateTime commissionDate) {
+        this.calculatedOn = commissionDate;
     }
 }
-
-

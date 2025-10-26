@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +15,8 @@ import java.util.Optional;
 public interface AppointmentFeedbackRepository extends JpaRepository<AppointmentFeedback, Long> {
     
     // Find feedback by appointment
-    Optional<AppointmentFeedback> findByAppointmentId(Long appointmentId);
+    @Query("SELECT f FROM AppointmentFeedback f WHERE f.appointment.id = :appointmentId")
+    Optional<AppointmentFeedback> findByAppointmentId(@Param("appointmentId") Long appointmentId);
     
     // Find feedback by appointment and customer
     @Query("SELECT f FROM AppointmentFeedback f WHERE f.appointment.id = :appointmentId " +
@@ -73,7 +75,7 @@ public interface AppointmentFeedbackRepository extends JpaRepository<Appointment
     Long countByBranchIdAndRating(@Param("branchId") Long branchId, @Param("rating") Integer rating);
     
     // Get recent feedback (last 30 days)
-    @Query("SELECT f FROM AppointmentFeedback f WHERE f.createdAt >= CURRENT_DATE - 30 " +
+    @Query("SELECT f FROM AppointmentFeedback f WHERE f.createdAt >= :thirtyDaysAgo " +
            "ORDER BY f.createdAt DESC")
-    List<AppointmentFeedback> findRecentFeedback();
+    List<AppointmentFeedback> findRecentFeedback(@Param("thirtyDaysAgo") LocalDateTime thirtyDaysAgo);
 }

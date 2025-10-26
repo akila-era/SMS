@@ -1,6 +1,7 @@
 package com.hexalyte.salon.service;
 
 import com.hexalyte.salon.dto.AppointmentDTO;
+import com.hexalyte.salon.dto.AppointmentServiceDTO;
 import com.hexalyte.salon.dto.AppointmentTemplateDTO;
 import com.hexalyte.salon.dto.AppointmentTemplateServiceDTO;
 import com.hexalyte.salon.model.*;
@@ -57,7 +58,7 @@ public class AppointmentTemplateService {
                 com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceDTO.getServiceId())
                         .orElseThrow(() -> new RuntimeException("Service not found: " + serviceDTO.getServiceId()));
 
-                AppointmentTemplateService templateService = new AppointmentTemplateService();
+                com.hexalyte.salon.model.AppointmentTemplateService templateService = new com.hexalyte.salon.model.AppointmentTemplateService();
                 templateService.setTemplate(template);
                 templateService.setService(service);
                 templateService.setPrice(serviceDTO.getPrice());
@@ -134,7 +135,7 @@ public class AppointmentTemplateService {
 
         // Convert template services to appointment services
         List<AppointmentServiceDTO> appointmentServices = new ArrayList<>();
-        for (AppointmentTemplateService templateService : template.getTemplateServices()) {
+        for (com.hexalyte.salon.model.AppointmentTemplateService templateService : template.getTemplateServices()) {
             AppointmentServiceDTO serviceDTO = new AppointmentServiceDTO();
             serviceDTO.setServiceId(templateService.getService().getId());
             serviceDTO.setPrice(templateService.getPrice());
@@ -173,7 +174,7 @@ public class AppointmentTemplateService {
                 com.hexalyte.salon.model.Service service = serviceRepository.findById(serviceDTO.getServiceId())
                         .orElseThrow(() -> new RuntimeException("Service not found: " + serviceDTO.getServiceId()));
 
-                AppointmentTemplateService templateService = new AppointmentTemplateService();
+                com.hexalyte.salon.model.AppointmentTemplateService templateService = new com.hexalyte.salon.model.AppointmentTemplateService();
                 templateService.setTemplate(template);
                 templateService.setService(service);
                 templateService.setPrice(serviceDTO.getPrice());
@@ -244,7 +245,7 @@ public class AppointmentTemplateService {
         return dto;
     }
 
-    private AppointmentTemplateServiceDTO convertTemplateServiceToDTO(AppointmentTemplateService templateService) {
+    private AppointmentTemplateServiceDTO convertTemplateServiceToDTO(com.hexalyte.salon.model.AppointmentTemplateService templateService) {
         AppointmentTemplateServiceDTO dto = new AppointmentTemplateServiceDTO();
         dto.setId(templateService.getId());
         dto.setServiceId(templateService.getService().getId());

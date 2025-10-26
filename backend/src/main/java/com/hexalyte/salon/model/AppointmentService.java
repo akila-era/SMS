@@ -32,6 +32,9 @@ public class AppointmentService {
     @Column(name = "commission_rate")
     private BigDecimal commissionRate;
 
+    @DecimalMin(value = "1.0", inclusive = true)
+    private Integer quantity = 1;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -93,6 +96,14 @@ public class AppointmentService {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }
 

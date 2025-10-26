@@ -1,6 +1,7 @@
 package com.hexalyte.salon.service;
 
 import com.hexalyte.salon.dto.WaitlistDTO;
+import com.hexalyte.salon.dto.AppointmentDTO;
 import com.hexalyte.salon.model.*;
 import com.hexalyte.salon.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;

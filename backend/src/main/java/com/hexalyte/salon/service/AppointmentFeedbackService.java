@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -96,7 +97,8 @@ public class AppointmentFeedbackService {
 
     // Get recent feedback
     public List<AppointmentFeedbackDTO> getRecentFeedback() {
-        return feedbackRepository.findRecentFeedback().stream()
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        return feedbackRepository.findRecentFeedback(thirtyDaysAgo).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

@@ -14,43 +14,53 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     
     // Find appointments by branch
-    List<Appointment> findByBranchId(Long branchId);
+    @Query("SELECT a FROM Appointment a WHERE a.branch.id = :branchId")
+    List<Appointment> findByBranchId(@Param("branchId") Long branchId);
     
     // Find appointments by staff
-    List<Appointment> findByStaffId(Long staffId);
+    @Query("SELECT a FROM Appointment a WHERE a.staff.id = :staffId")
+    List<Appointment> findByStaffId(@Param("staffId") Long staffId);
     
     // Find appointments by customer
-    List<Appointment> findByCustomerId(Long customerId);
+    @Query("SELECT a FROM Appointment a WHERE a.customer.id = :customerId")
+    List<Appointment> findByCustomerId(@Param("customerId") Long customerId);
     
     // Find appointments by date
     List<Appointment> findByAppointmentDate(LocalDate date);
     
     // Find appointments by branch and date
-    List<Appointment> findByBranchIdAndAppointmentDate(Long branchId, LocalDate date);
+    @Query("SELECT a FROM Appointment a WHERE a.branch.id = :branchId AND a.appointmentDate = :date")
+    List<Appointment> findByBranchIdAndAppointmentDate(@Param("branchId") Long branchId, @Param("date") LocalDate date);
     
     // Find appointments by staff and date
-    List<Appointment> findByStaffIdAndAppointmentDate(Long staffId, LocalDate date);
+    @Query("SELECT a FROM Appointment a WHERE a.staff.id = :staffId AND a.appointmentDate = :date")
+    List<Appointment> findByStaffIdAndAppointmentDate(@Param("staffId") Long staffId, @Param("date") LocalDate date);
     
     // Find appointments by status
     List<Appointment> findByStatus(Appointment.Status status);
     
     // Find appointments by branch and status
-    List<Appointment> findByBranchIdAndStatus(Long branchId, Appointment.Status status);
+    @Query("SELECT a FROM Appointment a WHERE a.branch.id = :branchId AND a.status = :status")
+    List<Appointment> findByBranchIdAndStatus(@Param("branchId") Long branchId, @Param("status") Appointment.Status status);
     
     // Find appointments by staff and status
-    List<Appointment> findByStaffIdAndStatus(Long staffId, Appointment.Status status);
+    @Query("SELECT a FROM Appointment a WHERE a.staff.id = :staffId AND a.status = :status")
+    List<Appointment> findByStaffIdAndStatus(@Param("staffId") Long staffId, @Param("status") Appointment.Status status);
     
     // Find appointments by date range
     List<Appointment> findByAppointmentDateBetween(LocalDate startDate, LocalDate endDate);
     
     // Find appointments by branch and date range
-    List<Appointment> findByBranchIdAndAppointmentDateBetween(Long branchId, LocalDate startDate, LocalDate endDate);
+    @Query("SELECT a FROM Appointment a WHERE a.branch.id = :branchId AND a.appointmentDate BETWEEN :startDate AND :endDate")
+    List<Appointment> findByBranchIdAndAppointmentDateBetween(@Param("branchId") Long branchId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     // Find appointments by staff and date range
-    List<Appointment> findByStaffIdAndAppointmentDateBetween(Long staffId, LocalDate startDate, LocalDate endDate);
+    @Query("SELECT a FROM Appointment a WHERE a.staff.id = :staffId AND a.appointmentDate BETWEEN :startDate AND :endDate")
+    List<Appointment> findByStaffIdAndAppointmentDateBetween(@Param("staffId") Long staffId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     // Find appointments by customer and date range
-    List<Appointment> findByCustomerIdAndAppointmentDateBetween(Long customerId, LocalDate startDate, LocalDate endDate);
+    @Query("SELECT a FROM Appointment a WHERE a.customer.id = :customerId AND a.appointmentDate BETWEEN :startDate AND :endDate")
+    List<Appointment> findByCustomerIdAndAppointmentDateBetween(@Param("customerId") Long customerId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     // Check for time conflicts
     @Query("SELECT a FROM Appointment a WHERE a.staff.id = :staffId AND a.appointmentDate = :date " +
@@ -95,10 +105,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Long countByStaffIdAndStatus(@Param("staffId") Long staffId, @Param("status") Appointment.Status status);
     
     // Find recurring appointments by parent appointment ID
-    List<Appointment> findByParentAppointmentId(Long parentAppointmentId);
+    @Query("SELECT a FROM Appointment a WHERE a.parentAppointmentId = :parentAppointmentId")
+    List<Appointment> findByParentAppointmentId(@Param("parentAppointmentId") Long parentAppointmentId);
     
     // Find recurring appointments by parent appointment ID and status
-    List<Appointment> findByParentAppointmentIdAndStatus(Long parentAppointmentId, Appointment.Status status);
+    @Query("SELECT a FROM Appointment a WHERE a.parentAppointmentId = :parentAppointmentId AND a.status = :status")
+    List<Appointment> findByParentAppointmentIdAndStatus(@Param("parentAppointmentId") Long parentAppointmentId, @Param("status") Appointment.Status status);
 }
 
 

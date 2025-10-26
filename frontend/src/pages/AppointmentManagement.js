@@ -10,17 +10,11 @@ import {
   ClockIcon,
   UserGroupIcon,
   ChartBarIcon,
-  FunnelIcon,
   MagnifyingGlassIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  StarIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ExclamationTriangleIcon,
   ArrowPathIcon,
   CalendarDaysIcon,
-  ClockIcon as ClockSolidIcon,
   UserIcon,
   BuildingOfficeIcon,
   CurrencyDollarIcon,
@@ -46,11 +40,10 @@ const AppointmentManagement = () => {
   const [viewMode, setViewMode] = useState('calendar'); // 'calendar', 'list', 'timeline'
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStaff, setSelectedStaff] = useState('all');
   const queryClient = useQueryClient();
 
   // Fetch appointments for selected date
-  const { data: appointments, isLoading, error } = useQuery(
+  const { data: appointments, isLoading } = useQuery(
     ['appointments', selectedDate],
     () => appointmentAPI.getByDate(selectedDate),
     {
@@ -63,9 +56,12 @@ const AppointmentManagement = () => {
     'todaysAppointments',
     () => appointmentAPI.getAll(),
     {
-      select: (data) => data.data.filter(apt => 
-        new Date(apt.appointmentDate).toDateString() === new Date().toDateString()
-      )
+      select: (data) => {
+        const appointments = Array.isArray(data?.data) ? data.data : [];
+        return appointments.filter(apt => 
+          new Date(apt.appointmentDate).toDateString() === new Date().toDateString()
+        );
+      }
     }
   );
 
@@ -108,36 +104,18 @@ const AppointmentManagement = () => {
     cancelMutation.mutate({ id, reason });
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'BOOKED': return 'bg-blue-100 text-blue-800';
-      case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-800';
-      case 'COMPLETED': return 'bg-green-100 text-green-800';
-      case 'CANCELLED': return 'bg-red-100 text-red-800';
-      case 'NO_SHOW': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const formatTime = (time) => {
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
 
   // Filter appointments based on search and filters
-  const filteredAppointments = appointments?.filter(appointment => {
+  const filteredAppointments = (Array.isArray(appointments) ? appointments : []).filter(appointment => {
     const matchesSearch = searchTerm === '' || 
       appointment.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.staffName.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = filterStatus === 'all' || appointment.status === filterStatus;
-    const matchesStaff = selectedStaff === 'all' || appointment.staffId.toString() === selectedStaff;
+    const matchesStaff = true; // Staff filtering removed for now
     
     return matchesSearch && matchesStatus && matchesStaff;
-  }) || [];
+  });
 
   if (isLoading) {
     return (

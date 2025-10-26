@@ -12,7 +12,8 @@ import java.util.List;
 public interface AppointmentTemplateRepository extends JpaRepository<AppointmentTemplate, Long> {
     
     // Find templates by branch
-    List<AppointmentTemplate> findByBranchIdAndIsActiveTrueOrderByUsageCountDesc(Long branchId);
+    @Query("SELECT at FROM AppointmentTemplate at WHERE at.branch.id = :branchId AND at.isActive = true ORDER BY at.usageCount DESC")
+    List<AppointmentTemplate> findByBranchIdAndIsActiveTrueOrderByUsageCountDesc(@Param("branchId") Long branchId);
     
     // Find all active templates
     List<AppointmentTemplate> findByIsActiveTrueOrderByUsageCountDesc();
@@ -21,8 +22,9 @@ public interface AppointmentTemplateRepository extends JpaRepository<Appointment
     List<AppointmentTemplate> findByTemplateNameContainingIgnoreCaseAndIsActiveTrue(String templateName);
     
     // Find templates by branch and name
+    @Query("SELECT at FROM AppointmentTemplate at WHERE at.branch.id = :branchId AND LOWER(at.templateName) LIKE LOWER(CONCAT('%', :templateName, '%')) AND at.isActive = true")
     List<AppointmentTemplate> findByBranchIdAndTemplateNameContainingIgnoreCaseAndIsActiveTrue(
-            Long branchId, String templateName);
+            @Param("branchId") Long branchId, @Param("templateName") String templateName);
     
     // Find most popular templates
     @Query("SELECT t FROM AppointmentTemplate t WHERE t.isActive = true ORDER BY t.usageCount DESC")
@@ -34,7 +36,8 @@ public interface AppointmentTemplateRepository extends JpaRepository<Appointment
     List<AppointmentTemplate> findMostPopularTemplatesByBranch(@Param("branchId") Long branchId);
     
     // Count templates by branch
-    Long countByBranchIdAndIsActiveTrue(Long branchId);
+    @Query("SELECT COUNT(at) FROM AppointmentTemplate at WHERE at.branch.id = :branchId AND at.isActive = true")
+    Long countByBranchIdAndIsActiveTrue(@Param("branchId") Long branchId);
     
     // Count all active templates
     Long countByIsActiveTrue();
