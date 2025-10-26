@@ -25,6 +25,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     
     @Query("SELECT c FROM Customer c WHERE c.loyaltyPoints >= :minPoints")
     List<Customer> findByLoyaltyPointsGreaterThanEqual(@Param("minPoints") Integer minPoints);
+    
+    // Count customers by preferred branch
+    Long countByPreferredBranchId(Long branchId);
 }
 
 

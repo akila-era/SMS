@@ -45,6 +45,14 @@ public class AppointmentDTO {
     @NotEmpty(message = "At least one service is required")
     private List<AppointmentServiceDTO> services;
 
+    // Recurrence fields
+    private Boolean isRecurring = false;
+    private String recurrencePattern;
+    private Integer recurrenceInterval = 1;
+    private LocalDate recurrenceEndDate;
+    private Long parentAppointmentId;
+    private Integer recurrenceSequence = 0;
+
     // Constructors
     public AppointmentDTO() {}
 
@@ -194,6 +202,54 @@ public class AppointmentDTO {
 
     public void setServices(List<AppointmentServiceDTO> services) {
         this.services = services;
+    }
+
+    public Boolean getIsRecurring() {
+        return isRecurring;
+    }
+
+    public void setIsRecurring(Boolean isRecurring) {
+        this.isRecurring = isRecurring;
+    }
+
+    public String getRecurrencePattern() {
+        return recurrencePattern;
+    }
+
+    public void setRecurrencePattern(String recurrencePattern) {
+        this.recurrencePattern = recurrencePattern;
+    }
+
+    public Integer getRecurrenceInterval() {
+        return recurrenceInterval;
+    }
+
+    public void setRecurrenceInterval(Integer recurrenceInterval) {
+        this.recurrenceInterval = recurrenceInterval;
+    }
+
+    public LocalDate getRecurrenceEndDate() {
+        return recurrenceEndDate;
+    }
+
+    public void setRecurrenceEndDate(LocalDate recurrenceEndDate) {
+        this.recurrenceEndDate = recurrenceEndDate;
+    }
+
+    public Long getParentAppointmentId() {
+        return parentAppointmentId;
+    }
+
+    public void setParentAppointmentId(Long parentAppointmentId) {
+        this.parentAppointmentId = parentAppointmentId;
+    }
+
+    public Integer getRecurrenceSequence() {
+        return recurrenceSequence;
+    }
+
+    public void setRecurrenceSequence(Integer recurrenceSequence) {
+        this.recurrenceSequence = recurrenceSequence;
     }
 }
 

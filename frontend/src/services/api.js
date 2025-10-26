@@ -48,7 +48,7 @@ export const branchAPI = {
   getAll: () => api.get('/branches'),
   getById: (id) => api.get(`/branches/${id}`),
   create: (data) => api.post('/branches', data),
-  update: (id, data) => api.put(`/branches/${id}moi`, data),
+  update: (id, data) => api.put(`/branches/${id}`, data),
   delete: (id) => api.delete(`/branches/${id}`),
 };
 
@@ -79,6 +79,16 @@ export const customerAPI = {
   update: (id, data) => api.put(`/customers/${id}`, data),
   delete: (id) => api.delete(`/customers/${id}`),
   search: (query) => api.get(`/customers/search?q=${query}`),
+  getHistory: (id) => api.get(`/customers/${id}/history`),
+  getHistoryByDateRange: (id, startDate, endDate) => api.get(`/customers/${id}/history/range?startDate=${startDate}&endDate=${endDate}`),
+  getPreferences: (id) => api.get(`/customers/${id}/preferences`),
+  updatePreferences: (id, data) => api.put(`/customers/${id}/preferences`, data),
+  updateLoyaltyPoints: (id, points) => api.patch(`/customers/${id}/loyalty-points?points=${points}`),
+  getLoyaltyBenefits: () => api.get('/customers/loyalty-benefits'),
+  getLoyaltyBenefitsByLevel: (level) => api.get(`/customers/loyalty-benefits/${level}`),
+  createLoyaltyBenefit: (data) => api.post('/customers/loyalty-benefits', data),
+  updateLoyaltyBenefit: (id, data) => api.put(`/customers/loyalty-benefits/${id}`, data),
+  deleteLoyaltyBenefit: (id) => api.delete(`/customers/loyalty-benefits/${id}`),
 };
 
 // Appointment API
@@ -138,4 +148,5 @@ export const reportsAPI = {
     api.get(`/reports/revenue-trends?branchId=${branchId}&start=${startDate}&end=${endDate}`),
 };
 
+export { api };
 export default api;

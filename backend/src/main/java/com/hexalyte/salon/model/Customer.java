@@ -67,6 +67,28 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();
 
+    // Customer preferences
+    @Column(name = "preferred_staff_id")
+    private Long preferredStaffId;
+
+    @Column(name = "preferred_branch_id")
+    private Long preferredBranchId;
+
+    @Column(name = "preferred_time_slot")
+    private String preferredTimeSlot;
+
+    @Column(name = "communication_preference")
+    private String communicationPreference = "SMS";
+
+    @Column(name = "receive_promotions")
+    private Boolean receivePromotions = true;
+
+    @Column(name = "receive_reminders")
+    private Boolean receiveReminders = true;
+
+    @Column(name = "preferences_notes", columnDefinition = "TEXT")
+    private String preferencesNotes;
+
     // Constructors
     public Customer() {}
 
@@ -191,6 +213,63 @@ public class Customer {
 
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    // Preference getters and setters
+    public Long getPreferredStaffId() {
+        return preferredStaffId;
+    }
+
+    public void setPreferredStaffId(Long preferredStaffId) {
+        this.preferredStaffId = preferredStaffId;
+    }
+
+    public Long getPreferredBranchId() {
+        return preferredBranchId;
+    }
+
+    public void setPreferredBranchId(Long preferredBranchId) {
+        this.preferredBranchId = preferredBranchId;
+    }
+
+    public String getPreferredTimeSlot() {
+        return preferredTimeSlot;
+    }
+
+    public void setPreferredTimeSlot(String preferredTimeSlot) {
+        this.preferredTimeSlot = preferredTimeSlot;
+    }
+
+    public String getCommunicationPreference() {
+        return communicationPreference;
+    }
+
+    public void setCommunicationPreference(String communicationPreference) {
+        this.communicationPreference = communicationPreference;
+    }
+
+    public Boolean getReceivePromotions() {
+        return receivePromotions;
+    }
+
+    public void setReceivePromotions(Boolean receivePromotions) {
+        this.receivePromotions = receivePromotions;
+    }
+
+    public Boolean getReceiveReminders() {
+        return receiveReminders;
+    }
+
+    public void setReceiveReminders(Boolean receiveReminders) {
+        this.receiveReminders = receiveReminders;
+    }
+
+    public String getPreferencesNotes() {
+        return preferencesNotes;
+    }
+
+    public void setPreferencesNotes(String preferencesNotes) {
+        this.preferencesNotes = preferencesNotes;
     }
 
     public enum MembershipLevel {

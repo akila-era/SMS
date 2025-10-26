@@ -18,12 +18,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Autowired
     private RateLimitingService rateLimitingService;
 
+    @Autowired
+    private AuthUtils authUtils;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String clientIp = auditLogger.getClientIpAddress(request);
         String method = request.getMethod();
         String endpoint = request.getRequestURI();
-        String username = AuthUtils.getCurrentUsername();
+        String username = authUtils.getCurrentUsername();
 
         // Check rate limiting for authentication endpoints
         if (endpoint.startsWith("/api/auth/")) {
@@ -50,7 +53,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         String clientIp = auditLogger.getClientIpAddress(request);
         String method = request.getMethod();
         String endpoint = request.getRequestURI();
-        String username = AuthUtils.getCurrentUsername();
+        String username = authUtils.getCurrentUsername();
 
         // Log API access with final status code
         if (username != null) {

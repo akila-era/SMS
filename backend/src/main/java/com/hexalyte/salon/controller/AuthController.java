@@ -37,6 +37,9 @@ public class AuthController {
     @Autowired
     private AuditLogger auditLogger;
 
+    @Autowired
+    private AuthUtils authUtils;
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, 
                                             HttpServletRequest request) {
@@ -80,7 +83,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(HttpServletRequest request) {
-        String username = AuthUtils.getCurrentUsername();
+        String username = authUtils.getCurrentUsername();
         String clientIp = auditLogger.getClientIpAddress(request);
         
         SecurityContextHolder.clearContext();
@@ -94,11 +97,11 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
-        if (!AuthUtils.isAuthenticated()) {
+        if (!authUtils.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
         }
         
-        String username = AuthUtils.getCurrentUsername();
+        String username = authUtils.getCurrentUsername();
         User user = userRepository.findByUsername(username).orElse(null);
         
         if (user == null) {
@@ -110,11 +113,11 @@ public class AuthController {
 
     @GetMapping("/roles")
     public ResponseEntity<?> getCurrentUserRoles() {
-        if (!AuthUtils.isAuthenticated()) {
+        if (!authUtils.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
         }
         
-        return ResponseEntity.ok(AuthUtils.getCurrentUserRoles());
+        return ResponseEntity.ok(authUtils.getCurrentUserRoles());
     }
 }
 
